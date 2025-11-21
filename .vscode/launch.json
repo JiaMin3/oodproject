@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-OodprojectApplication<oodproject>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "my.com.mckl.oodproject.OodprojectApplication",
+            "projectName": "oodproject",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
