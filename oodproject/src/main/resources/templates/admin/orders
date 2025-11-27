@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Manage Orders</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="container mt-4">
+
+    <div class="d-flex justify-content-between mb-4">
+        <h2>Customer Orders</h2>
+        <a th:href="@{/admin}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th>Items</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td th:text="'#' + ${order.orderId}">#10</td>
+                        <td>
+                            <div th:text="${order.customerName}">John Doe</div>
+                            <small class="text-muted" th:text="${order.customerEmail}">john@example.com</small>
+                        </td>
+                        <td th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}">28-11-2025</td>
+                        <td>
+                            <span class="badge bg-warning text-dark" th:text="${order.status}">PENDING</span>
+                        </td>
+                        <td th:text="'RM ' + ${order.totalAmount}">RM 100.00</td>
+                        <td>
+                            <ul class="list-unstyled mb-0">
+                                <li th:each="item : ${order.items}">
+                                    <small>
+                                        <span th:text="${item.product.name}">Product</span> 
+                                        x<span th:text="${item.quantity}">1</span>
+                                    </small>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
