@@ -1,17 +1,22 @@
 package my.com.mckl.oodproject.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import jakarta.servlet.http.HttpSession;
 import my.com.mckl.oodproject.model.Order;
 import my.com.mckl.oodproject.model.Product;
 import my.com.mckl.oodproject.repository.OrderRepository;
 import my.com.mckl.oodproject.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
@@ -95,7 +100,7 @@ public class AdminController {
     public String listOrders(Model model, HttpSession session) {
         // if (session.getAttribute("adminUser") == null) return "redirect:/admin/login";
 
-        // Wrap this in try-catch to prevent crashing
+        // Wrapped in try-catch to prevent crashing
         try {
             List<Order> orders = orderRepository.findAll(Sort.by(Sort.Direction.DESC, "orderId"));
             model.addAttribute("orders", orders);
@@ -104,6 +109,27 @@ public class AdminController {
             model.addAttribute("orders", List.of()); // Empty list if error
         }
         
-        return "admin/orders/list";
+        return "admin/order-list";
+    }
+
+    // --- 7: EDIT PRODUCT FORM ---
+    // This allows you to open the form with existing data filled in
+    @GetMapping("/products/edit/{id}")
+    public String showEditProductForm(@PathVariable("id") Integer id, Model model) {
+        // Find the product by ID
+        Product product = productRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid product Id:" + id));
+        
+        model.addAttribute("product", product);
+        
+        return "admin/product-form"; 
+    }
+
+    // --- 8. MANUAL ORDER FORM ---
+    @GetMapping("/orders/create")
+    public String showCreateOrderForm(Model model, HttpSession session) {
+        // You can reuse the "store" page for this, or make a simple admin form.
+        // For now, let's just redirect them to the store as a simple "Manual Order" method
+        return "redirect:/store"; 
     }
 }

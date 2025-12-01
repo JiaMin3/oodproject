@@ -1,6 +1,7 @@
 package my.com.mckl.oodproject.controller;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,49 +32,45 @@ public class CartController {
     @Autowired
     private ProductRepository productRepository;
 
-    // This method handles the "Add to Cart" button click
+   // Save CartItem directly to prevent overwriting list
     @PostMapping("/add")
     public String addToCart(@RequestParam Integer productId, HttpSession session) {
         
-        // 1. Get the User's Session ID (This acts as their temporary ID)
+        // 1. Log the Session ID (Check your console!)
         String sessionId = session.getId();
+        System.out.println("DEBUG: Session ID = " + sessionId);
         
-        // 2. Find their Cart, or create a new one if it doesn't exist
-        Cart cart = cartRepository.findBySessionId(sessionId).orElse(new Cart(sessionId));
-        
-        // If it's a new cart (no ID yet), save it first
-        if (cart.getCartId() == null) {
-            cartRepository.save(cart);
-        }
-
-        // 3. Find the Product they want to buy
+        // 2. Get Product
         Product product = productRepository.findById(productId).orElse(null);
+        if (product == null) return "redirect:/store";
 
-        if (product != null) {
-            // 4. Check if this product is ALREADY in their cart
-            CartItem existingItem = null;
-            
-            // Loop through current items to find a match
-            for (CartItem item : cart.getItems()) {
-                if (item.getProduct().getProductId().equals(productId)) {
-                    existingItem = item;
-                    break;
-                }
-            }
+        // 3. Get Cart (Ensure it is saved)
+        Cart cart = cartRepository.findBySessionId(sessionId).orElse(null);
+        if (cart == null) {
+            cart = new Cart(sessionId);
+            cartRepository.save(cart); // Save to generate cartId
+            System.out.println("DEBUG: Created New Cart ID = " + cart.getCartId());
+        } else {
+            System.out.println("DEBUG: Found Existing Cart ID = " + cart.getCartId());
+        }
 
-            if (existingItem != null) {
-                // If exists, just increase quantity (+1)
-                existingItem.setQuantity(existingItem.getQuantity() + 1);
-                cartItemRepository.save(existingItem);
-            } else {
-                // If not, create a new item
-                CartItem newItem = new CartItem(cart, product, 1);
-                cartItemRepository.save(newItem);
-            }
+        // 4. FAIL-SAFE CHECK: Use IDs to find item
+        Optional<CartItem> existingItemOpt = cartItemRepository.findByCartIdAndProductId(cart.getCartId(), product.getProductId());
+
+        if (existingItemOpt.isPresent()) {
+            // SCENARIO A: It exists -> Update Quantity
+            CartItem item = existingItemOpt.get();
+            item.setQuantity(item.getQuantity() + 1);
+            cartItemRepository.save(item);
+            System.out.println("DEBUG: Increased quantity for Product ID " + productId);
+        } else {
+            // SCENARIO B: It's new -> Insert Row
+            CartItem newItem = new CartItem(cart, product, 1);
+            cartItemRepository.save(newItem);
+            System.out.println("DEBUG: Inserted new row for Product ID " + productId);
         }
         
-        // 5. Send them back to the store page
-        return "redirect:/store";
+        return "redirect:/store?added=true";
     }
     
     @GetMapping
