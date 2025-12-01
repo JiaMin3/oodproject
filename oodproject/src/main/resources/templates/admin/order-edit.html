@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Order</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="container mt-5">
+
+    <div class="card shadow-lg">
+        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Edit Order #<span th:text="${order.orderId}"></span></h4>
+        </div>
+        
+        <div class="card-body">
+            <form th:action="@{/admin/orders/update}" th:object="${order}" method="post">
+                
+                <input type="hidden" th:field="*{orderId}" />
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Customer Name</label>
+                        <input type="text" class="form-control" th:field="*{customerName}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Order Status</label>
+                        <select class="form-select" th:field="*{status}">
+                            <option value="PENDING">PENDING</option>
+                            <option value="PAID">PAID</option>
+                            <option value="SHIPPED">SHIPPED</option>
+                            <option value="COMPLETED">COMPLETED</option>
+                            <option value="CANCELLED">CANCELLED</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" th:field="*{customerEmail}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Phone</label>
+                    <input type="text" class="form-control" th:field="*{customerPhone}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Shipping Address</label>
+                    <textarea class="form-control" th:field="*{customerAddress}" rows="3" required></textarea>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <a th:href="@{/admin/orders}" class="btn btn-secondary">Cancel</a>
+                    </div>
+
+                    <a th:href="@{/admin/orders/delete/{id}(id=${order.orderId})}" 
+                       class="btn btn-danger"
+                       onclick="return confirm('WARNING: Are you sure you want to delete this order? This cannot be undone.');">
+                        <i class="fas fa-trash"></i> Delete Permanently
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

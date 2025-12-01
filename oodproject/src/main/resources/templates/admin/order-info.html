@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Order Details</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Order Details: #<span th:text="${order.orderId}"></span></h2>
+            <a th:href="@{/admin/orders}" class="btn btn-secondary">Back to List</a>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">Customer Information</div>
+                    <div class="card-body">
+                        <p><strong>Name:</strong> <span th:text="${order.customerName}"></span></p>
+                        <p><strong>Email:</strong> <span th:text="${order.customerEmail}"></span></p>
+                        <p><strong>Phone:</strong> <span th:text="${order.customerPhone}"></span></p>
+                        <p><strong>Address:</strong> <span th:text="${order.customerAddress}"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-dark text-white">Order Status</div>
+                    <div class="card-body">
+                        <p><strong>Date:</strong> <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></span></p>
+                        <p><strong>Total Amount:</strong> <span class="text-success fw-bold" th:text="'RM ' + ${order.totalAmount}"></span></p>
+                        <p><strong>Current Status:</strong> <span class="badge bg-warning text-dark" th:text="${order.status}"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-2">
+            <div class="card-header">Items Purchased</div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Brand</th>
+                            <th>Unit Price</th>
+                            <th>Quantity</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${order.items}">
+                            <td th:text="${item.product.name}">iPhone 15</td>
+                            <td th:text="${item.product.brand}">Apple</td>
+                            <td th:text="'RM ' + ${item.product.price}">RM 3999</td>
+                            <td th:text="${item.quantity}">1</td>
+                            <td th:text="'RM ' + ${item.product.price * item.quantity}">RM 3999</td> </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

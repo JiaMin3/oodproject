@@ -113,7 +113,6 @@ public class AdminController {
     }
 
     // --- 7: EDIT PRODUCT FORM ---
-    // This allows you to open the form with existing data filled in
     @GetMapping("/products/edit/{id}")
     public String showEditProductForm(@PathVariable("id") Integer id, Model model) {
         // Find the product by ID
@@ -131,5 +130,55 @@ public class AdminController {
         // You can reuse the "store" page for this, or make a simple admin form.
         // For now, let's just redirect them to the store as a simple "Manual Order" method
         return "redirect:/store"; 
+    }
+
+    // --- 9. VIEW ORDER DETAILS ---
+    @GetMapping("/orders/view/{id}")
+    public String viewOrderDetails(@PathVariable("id") Integer id, Model model) {
+        // 1. Pull the entire row from SQL
+        Order order = orderRepository.findById(id).orElse(null);
+        
+        // 2. Put it in the model so HTML can see it
+        model.addAttribute("order", order);
+        
+        // 3. Go to the details page
+        return "admin/order-info"; 
+    }
+
+    // --- 10. SHOW EDIT FORM ---
+    @GetMapping("/orders/edit/{id}")
+    public String showEditOrderForm(@PathVariable("id") Integer id, Model model) {
+        Order order = orderRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid order Id:" + id));
+        
+        model.addAttribute("order", order);
+        return "admin/order-edit"; 
+    }
+
+    // --- 11. SAVE UPDATED ORDER ---
+    @PostMapping("/orders/update")
+    public String updateOrder(@ModelAttribute("order") Order order) {
+        // We need to fetch the existing order to preserve the items list and date
+        // (The form usually only sends back editable fields like Status/Address)
+        Order existingOrder = orderRepository.findById(order.getOrderId()).orElse(null);
+        
+        if (existingOrder != null) {
+            existingOrder.setStatus(order.getStatus());
+            existingOrder.setCustomerName(order.getCustomerName());
+            existingOrder.setCustomerEmail(order.getCustomerEmail());
+            existingOrder.setCustomerPhone(order.getCustomerPhone());
+            existingOrder.setCustomerAddress(order.getCustomerAddress());
+            
+            // Save the changes
+            orderRepository.save(existingOrder);
+        }
+        return "redirect:/admin/orders";
+    }
+
+    // --- 12. DELETE ORDER ---
+    @GetMapping("/orders/delete/{id}")
+    public String deleteOrder(@PathVariable("id") Integer id) {
+        orderRepository.deleteById(id);
+        return "redirect:/admin/orders";
     }
 }
