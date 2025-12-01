@@ -7,7 +7,6 @@
 <body class="bg-light">
     <div class="container mt-5">
         <div class="row">
-            <!-- Order Summary -->
             <div class="col-md-4 order-md-2 mb-4">
                 <h4 class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-primary">Your cart</span>
@@ -28,7 +27,6 @@
                 </ul>
             </div>
 
-            <!-- Billing Details Form -->
             <div class="col-md-8 order-md-1">
                 <h4 class="mb-3">Billing address</h4>
                 <form th:action="@{/checkout/process}" th:object="${order}" method="post">

@@ -15,10 +15,10 @@ import my.com.mckl.oodproject.repository.ProductRepository;
 public class StoreController {
 
 
-    // Redirects "localhost:8080/" directly to the Admin Login page
+    // Redirects "localhost:8080/" directly to the Login page
     @GetMapping("/")
     public String home() {
-        // Changes the destinationto the admin login page
+        // Changes the destinationto the login page
         return "redirect:/admin/login";
     }
 
