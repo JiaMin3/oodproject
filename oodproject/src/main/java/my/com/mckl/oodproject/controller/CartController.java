@@ -1,22 +1,22 @@
 package my.com.mckl.oodproject.controller;
 
-import jakarta.servlet.http.HttpSession;
+import java.math.BigDecimal;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import jakarta.servlet.http.HttpSession; 
 import my.com.mckl.oodproject.model.Cart;
 import my.com.mckl.oodproject.model.CartItem;
 import my.com.mckl.oodproject.model.Product;
 import my.com.mckl.oodproject.repository.CartItemRepository;
 import my.com.mckl.oodproject.repository.CartRepository;
-import my.com.mckl.oodproject.repository.ProductRepository;
-
-import java.math.BigDecimal;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.GetMapping; 
-import org.springframework.ui.Model; 
+import my.com.mckl.oodproject.repository.ProductRepository; 
 
 @Controller
 @RequestMapping("/cart")
@@ -92,5 +92,22 @@ public class CartController {
         model.addAttribute("total", total);
         
         return "cart"; // Looks for templates/cart.html
+    }
+
+    /**
+     * Handles the removal of a specific item from the cart.
+     * Triggered by the "Trash" icon in the cart view.
+     *
+     * @param cartItemId 
+     * @return
+     */
+    @GetMapping("/remove")
+    public String removeFromCart(@RequestParam("id") Integer cartItemId) {
+        // 1. Delete the item from the database using the Repository
+        // Note: This permanently removes the row from the 'cart_items' table
+        cartItemRepository.deleteById(cartItemId);
+
+        // 2. Redirect back to the main cart page to refresh the view
+        return "redirect:/cart";
     }
 }

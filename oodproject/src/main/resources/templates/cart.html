@@ -2,7 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Your Shopping Cart</title>
+    <!-- Bootstrap CSS for styling -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- FontAwesome for Icons (Trash can, Shopping cart, Arrows) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-light">
@@ -10,12 +12,18 @@
     <div class="container mt-5">
         <h2 class="mb-4"><i class="fas fa-shopping-cart"></i> Your Shopping Cart</h2>
 
-        <!-- Empty Cart Message -->
+        <!-- ================================================= -->
+        <!-- EMPTY CART SECTION                                -->
+        <!-- Logic: Check if cart.items is empty using th:if   -->
+        <!-- ================================================= -->
         <div th:if="${cart.items.empty}" class="alert alert-info">
             Your cart is empty. <a href="/store" class="alert-link">Go shopping!</a>
         </div>
 
-        <!-- Cart Table -->
+        <!-- ================================================= -->
+        <!-- CART TABLE SECTION                                -->
+        <!-- Logic: Display this div ONLY if cart is NOT empty -->
+        <!-- ================================================= -->
         <div th:unless="${cart.items.empty}" class="card shadow-sm">
             <div class="card-body p-0">
                 <table class="table table-striped mb-0">
@@ -29,26 +37,51 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- LOOP: Iterate through each 'item' in the 'cart.items' list -->
                         <tr th:each="item : ${cart.items}">
                             <td>
+                                <!-- Display Product Name -->
                                 <h6 th:text="${item.product.name}">Product Name</h6>
+                                <!-- Display Brand -->
                                 <small class="text-muted" th:text="${item.product.brand}">Brand</small>
                             </td>
+                            
+                            <!-- Display Single Unit Price -->
                             <td th:text="'RM ' + ${item.product.price}">RM 100.00</td>
+                            
+                            <!-- Display Quantity Selected -->
                             <td th:text="${item.quantity}">1</td>
+                            
+                            <!-- Display Line Total (Price * Quantity) -->
+                            <!-- Note: Thymeleaf automatically handles BigDecimal math here -->
                             <td th:text="'RM ' + ${item.product.price * item.quantity}">RM 100.00</td>
+                            
                             <td>
-                                <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                <!-- REMOVE BUTTON -->
+                                <!-- Points to /cart/remove endpoint (needs to be added to Controller) -->
+                                <a th:href="@{/cart/remove(id=${item.cartItemId})}" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            
+            <!-- FOOTER SECTION: Totals and Checkout Button -->
             <div class="card-footer bg-white d-flex justify-content-between align-items-center">
-                <a href="/store" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Continue Shopping</a>
+                <a href="/store" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Continue Shopping
+                </a>
+                
                 <div class="text-end">
+                    <!-- Display Grand Total passed from Controller -->
                     <h4>Total: <span class="text-success" th:text="'RM ' + ${total}">RM 0.00</span></h4>
-                    <a href="/checkout" class="btn btn-success btn-lg mt-2">Proceed to Checkout <i class="fas fa-arrow-right"></i></a>
+                    
+                    <!-- Link to Checkout Page -->
+                    <a href="/checkout" class="btn btn-success btn-lg mt-2">
+                        Proceed to Checkout <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         </div>

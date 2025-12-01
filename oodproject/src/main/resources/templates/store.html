@@ -51,45 +51,64 @@
             </div>
         </div>
 
-        <!-- Product Grid -->
+        <!-- ============================================= -->
+        <!-- PRODUCT GRID SECTION                          -->
+        <!-- Purpose: Loops through SQL data to show items -->
+        <!-- ============================================= -->
         <div class="row row-cols-1 row-cols-md-3 g-4">
             
-            <!-- Empty State (If no products exist) -->
+            <!-- Check if the product list is empty. If true, show 'No products' message. -->
             <div th:if="${products.empty}" class="col-12 text-center py-5">
                 <h3>No products available right now.</h3>
                 <p>Please check back later!</p>
             </div>
 
-            <!-- Product Loop -->
+            <!-- Main Loop: Iterate through each product found in the database -->
             <div class="col" th:each="prod : ${products}">
                 <div class="card product-card shadow-sm border-0">
-                    <!-- Placeholder Image (Since we don't have images in DB) -->
+                    
+                    <!-- Placeholder Image (Static because we don't have DB images yet) -->
                     <div class="bg-secondary text-white d-flex justify-content-center align-items-center" style="height: 200px;">
                         <i class="fas fa-mobile-alt fa-4x"></i>
                     </div>
                     
                     <div class="card-body d-flex flex-column">
+                        <!-- Display the Product Name -->
                         <h5 class="card-title" th:text="${prod.name}">iPhone 15</h5>
+                        
+                        <!-- Display the Brand Name -->
                         <p class="card-text text-muted" th:text="${prod.brand}">Apple</p>
                         
                         <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <!-- Display Price with RM prefix -->
                             <span class="price-tag" th:text="'RM ' + ${prod.price}">RM 3999.00</span>
                             
-                            <!-- Add to Cart Button (Phase 3 Prep) -->
-                            <form action="#" method="post">
+                            <!-- Add to Cart Form: Only visible if stock > 0 -->
+                            <form action="/cart/add" method="post" th:if="${prod.stock > 0}">
+                                <!-- Hidden Field: Sends the Product ID to the Controller -->
                                 <input type="hidden" name="productId" th:value="${prod.productId}">
-                                <button type="button" class="btn btn-outline-primary" onclick="alert('Add to Cart coming in Phase 3!')">
-                                <i class="fas fa-cart-plus"></i> Add
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-cart-plus"></i> Add
                                 </button>
                             </form>
+                            
+                            <!-- Unavailable Button: Only visible if stock is 0 -->
+                            <button th:if="${prod.stock == 0}" class="btn btn-secondary" disabled>
+                                Unavailable
+                            </button>
+
                         </div>
                     </div>
                     
                     <div class="card-footer bg-white text-end">
-                        <small class="text-muted" th:text="${prod.stock} + ' items left'">10 items left</small>
+                        <!-- Logic: If stock > 0 show count, otherwise show 'Out of Stock' text -->
+                        <small class="text-muted" th:text="${prod.stock > 0 ? prod.stock + ' items left' : 'Out of Stock'}">
+                            10 items left
+                        </small>
                     </div>
                 </div>
             </div>
+            <!-- End of Product Loop -->
 
         </div>
     </div>
