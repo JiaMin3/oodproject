@@ -34,13 +34,6 @@ public class AdminController {
         Object user = session.getAttribute("adminUser");
         System.out.println("--- DASHBOARD ACCESS CHECK. User: " + user + " ---"); 
 
-        // --- BYPASS FIX: Commented out the security check so you can enter ---
-        /*
-        if (user == null) {
-            System.out.println("--- ACCESS DENIED: Redirecting to Login ---");
-            return "redirect:/admin/login";
-        }
-        */
 
         model.addAttribute("totalProducts", productRepository.count());
         
@@ -112,7 +105,7 @@ public class AdminController {
         return "admin/order-list";
     }
 
-    // --- 7: EDIT PRODUCT FORM ---
+    // --- 7. EDIT PRODUCT FORM ---
     @GetMapping("/products/edit/{id}")
     public String showEditProductForm(@PathVariable("id") Integer id, Model model) {
         // Find the product by ID
