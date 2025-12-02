@@ -1,10 +1,12 @@
 package my.com.mckl.oodproject.controller;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -76,35 +78,54 @@ public class CartController {
     @GetMapping
     public String viewCart(Model model, HttpSession session) {
         String sessionId = session.getId();
-        Cart cart = cartRepository.findBySessionId(sessionId).orElse(new Cart(sessionId));
         
+        Cart cart = cartRepository.findBySessionId(sessionId).orElse(null);
+        
+        // Handle empty/new cart scenario 
+        if (cart == null) {
+            cart = new Cart(sessionId);
+            model.addAttribute("cart", cart);
+            model.addAttribute("total", BigDecimal.ZERO);
+            return "cart";
+        }
+        
+        // Fetch Items
+        List<CartItem> freshItems = cartItemRepository.findByCart(cart);
+        cart.setItems(freshItems); 
+
         // Calculate Total Price
         BigDecimal total = BigDecimal.ZERO;
-        for (CartItem item : cart.getItems()) {
-            BigDecimal lineTotal = item.getProduct().getPrice().multiply(new BigDecimal(item.getQuantity()));
-            total = total.add(lineTotal);
+        for (CartItem item : freshItems) {
+            // null check
+            if (item.getProduct() != null && item.getQuantity() != null) {
+                 BigDecimal lineTotal = item.getProduct().getPrice().multiply(new BigDecimal(item.getQuantity()));
+                 total = total.add(lineTotal);
+            }
         }
 
         model.addAttribute("cart", cart);
         model.addAttribute("total", total);
         
-        return "cart"; // Looks for templates/cart.html
+        return "cart"; 
     }
 
-    /**
-     * Handles the removal of a specific item from the cart.
-     * Triggered by the "Trash" icon in the cart view.
-     *
-     * @param cartItemId 
-     * @return
-     */
+   @Transactional
     @GetMapping("/remove")
-    public String removeFromCart(@RequestParam("id") Integer cartItemId) {
-        // 1. Delete the item from the database using the Repository
-        // Note: This permanently removes the row from the 'cart_items' table
-        cartItemRepository.deleteById(cartItemId);
-
-        // 2. Redirect back to the main cart page to refresh the view
+    public String removeFromCart(@RequestParam("id") Integer cartItemId, HttpSession session) {
+        
+        Optional<CartItem> itemToDeleteOpt = cartItemRepository.findById(cartItemId);
+        
+        if (itemToDeleteOpt.isPresent()) {
+            CartItem item = itemToDeleteOpt.get();
+            Cart parentCart = item.getCart();
+            parentCart.getItems().remove(item);
+            cartItemRepository.delete(item);
+            cartRepository.save(parentCart);
+            
+            System.out.println("DEBUG: Successfully removed CartItem ID: " + cartItemId + " from list and DB.");
+        } else {
+            System.out.println("DEBUG: Item to delete not found: " + cartItemId);
+        }
         return "redirect:/cart";
     }
 }

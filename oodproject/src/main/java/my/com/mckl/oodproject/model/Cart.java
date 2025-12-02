@@ -25,7 +25,7 @@ public class Cart {
     private String sessionId;
 
     // Relationship: One Cart has Many Items
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items = new ArrayList<>();
 
     // Constructors
